@@ -1,9 +1,10 @@
-after_success:
-- mvn test javadoc:javadoc
 before_install:
 - if [ "$TRAVIS_OS_NAME" == "osx" ];        then sed -i '' 's/<gib.enabled>true/<gib.enabled>false/'
   $TRAVIS_BUILD_DIR/pom.xml;        else sed -i 's/<gib.enabled>true/<gib.enabled>false/'
   $TRAVIS_BUILD_DIR/pom.xml;        fi
+- sudo apt-get -qq update
+- sudo apt-get install npm
+- sudo npm install newman --global;
 before_script:
 - if [ "$TRAVIS_OS_NAME" == "osx" ];    then sed -i '' 's/<gib.enabled>false/<gib.enabled>true/'
   $TRAVIS_BUILD_DIR/pom.xml;    else sed -i 's/<gib.enabled>false/<gib.enabled>true/'
@@ -14,10 +15,12 @@ language: java
 script:
 - touch NOW
 - echo GIBSTUDYSTART $(date)
-- mvn test -B
+- mvn clean install -Pfull
 - echo GIBSTUDYEND $(date)
 - cd $TRAVIS_BUILD_DIR
 - if [ "$TRAVIS_OS_NAME" == "osx" ];        then echo TESTNUM $(find . -name TEST-*.xml
   -newer NOW | wc -l);        else echo TESTNUM $(find -name TEST-*.xml -newer NOW
   | wc -l);        fi
+services:
+- docker
 sudo: false
